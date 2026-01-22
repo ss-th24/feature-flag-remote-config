@@ -1,32 +1,58 @@
-# Employee Management System
+# Feature Flag & Remote Config System
 
-A full-stack web application for managing employees with role-based access control (RBAC), JWT authentication, and comprehensive CRUD operations. Features a modern, responsive frontend with permission-based UI controls.
+A backend-focused system demonstrating role-based access control (RBAC),
+feature flags, and remote configuration.  
+Employee records are used as a demo resource to showcase permission-driven
+behavior at runtime.
+
+## 🔗 Live Website
+👉 [![Live](https://img.shields.io/badge/Status-Live-green)](https://feature-flag-remote-config.onrender.com/)
+
+---
+
+## Feature Flags & Remote Configuration
+
+In this system, **feature flags are implemented as permission toggles stored in the database**.
+Each role has a JSON-based configuration that determines which actions are enabled at runtime.
+
+Because permissions are fetched dynamically on each request:
+- Features can be enabled or disabled **without redeploying the service**
+- Access can be controlled **per role**
+- UI behavior updates immediately based on server-side configuration
+
+This models real-world feature flag and remote configuration systems used in production.
+
+---
 
 ## Features
 
-- 🔐 **JWT Authentication** - Secure login and token-based authentication
-- 👥 **Role-Based Access Control (RBAC)** - Multiple user roles with permission-based access
-- 📝 **Employee CRUD Operations** - Create, Read, Update, Delete employees
-- ✅ **Input Validation** - Zod schema validation for all inputs
-- 🔒 **Security** - Password hashing with bcrypt, SQL injection protection
-- 🎯 **Error Handling** - Centralized error handling middleware
-- 🎨 **Modern Frontend** - Beautiful, responsive UI with permission-based button visibility
-- 🚫 **Permission Feedback** - Forbidden action popups for unauthorized operations
+- 🔐 **JWT Authentication** – Secure login and token-based authentication
+- 👥 **Role-Based Access Control (RBAC)** – Permission-based access using roles
+- 🏳️ **Feature Flags** – Runtime toggling of features via database config
+- 📝 **Employee Records (CRUD)** – Demo resource for permissions
+- ✅ **Input Validation** – Zod schema validation
+- 🔒 **Security** – bcrypt hashing, parameterized SQL queries
+- 🎯 **Centralized Error Handling**
+- 🎨 **Permission-Aware UI** – Disabled actions show forbidden feedback
+
+---
 
 ## Tech Stack
 
 ### Backend
-- **Node.js** with Express.js
-- **PostgreSQL** - Database
-- **JWT** - Authentication tokens
-- **bcrypt** - Password hashing
-- **Zod** - Schema validation
-- **pg** - PostgreSQL client
+- Node.js + Express
+- PostgreSQL
+- JWT
+- bcrypt
+- Zod
+- pg
 
 ### Frontend
-- **Vanilla JavaScript** - No framework dependencies
-- **HTML5 & CSS3** - Modern, responsive design
-- **Fetch API** - RESTful API integration
+- Vanilla JavaScript
+- HTML5 / CSS3
+- Fetch API
+
+---
 
 ## Project Structure
 
@@ -62,12 +88,15 @@ feature-flag-remote-config/
         ├── login.js           # Login page logic
         └── employees.js       # Employee page logic
 ```
+## Deployment
+
+This project is deployed in a production environment using **Render**.
 
 ## Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ss-th24/feature-flag-remote-config
    cd feature-flag-remote-config
    ```
 
@@ -77,7 +106,7 @@ feature-flag-remote-config/
    ```
 
 3. **Set up environment variables**
-   Create a `.env` file in the root directory:
+   Create a `.env` file:
    ```env
    PORT=3000
    connectionString=postgresql://username:password@localhost:5432/database_name
@@ -85,7 +114,7 @@ feature-flag-remote-config/
    SALT_ROUNDS=10
    ```
 
-4. **Set up the database**
+4. **Database Setup**
    - Ensure PostgreSQL is installed and running
    - Create a database for the project
    - Create the following tables:
