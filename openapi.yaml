@@ -1,0 +1,244 @@
+openapi: 3.0.3
+info:
+  title: Feature Flag & Remote Config API
+  description: |
+    Backend API demonstrating Role-Based Access Control (RBAC),
+    feature flags, and remote configuration using database-driven permissions.
+
+    Employee records are used as a demo resource to showcase
+    permission-based behavior at runtime.
+  version: 1.0.0
+
+servers:
+  - url: https://feature-flag-remote-config.onrender.com
+    description: Production
+  - url: http://localhost:3000
+    description: Local Development
+
+tags:
+  - name: Auth
+    description: Authentication and user management
+  - name: Employees
+    description: Employee resource protected by RBAC and feature flags
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        err:
+          type: object
+
+    SignupRequest:
+      type: object
+      required: [username, password, role]
+      properties:
+        username:
+          type: string
+          minLength: 6
+        password:
+          type: string
+          minLength: 6
+        role:
+          type: string
+          enum: [superadmin, admin, contributor, viewer, guest]
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        message:
+          type: string
+        permissions:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: boolean
+
+    Employee:
+      type: object
+      properties:
+        emp_id:
+          type: string
+          format: uuid
+        emp_name:
+          type: string
+        emp_phone:
+          type: string
+        emp_gender:
+          type: string
+          enum: [M, F, O]
+
+    EmployeeCreateRequest:
+      type: object
+      required: [name, phone, gender]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+          pattern: '^(\+91)?[6-9]\d{9}$'
+        gender:
+          type: string
+          enum: [M, F, O, male, female, other]
+
+paths:
+  /api/auth/users:
+    get:
+      tags: [Auth]
+      summary: Get all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_name:
+                          type: string
+
+    post:
+      tags: [Auth]
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/employees/employee-page:
+    get:
+      tags: [Employees]
+      summary: Get all employees
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+        '403':
+          description: Forbidden
+
+    post:
+      tags: [Employees]
+      summary: Create employee
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+      responses:
+        '201':
+          description: Employee created
+        '403':
+          description: Forbidden
+
+  /api/employees/employee-page/{id}:
+    put:
+      tags: [Employees]
+      summary: Update employee
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+      responses:
+        '200':
+          description: Employee updated
+        '403':
+          description: Forbidden
+
+    delete:
+      tags: [Employees]
+      summary: Delete employee
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Employee deleted
+        '403':
+          description: Forbidden
