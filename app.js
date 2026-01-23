@@ -3,11 +3,13 @@ const path = require('path');
 const authRoutes = require('./routes/auth.routes');
 const employeeRoutes = require('./routes/employee.routes');
 const error = require('./middlewares/error.middleware');
-const app = express();
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
-const swaggerDocument = YAML.load('./openapi.yaml');
+const swaggerDocument = YAML.load(
+  path.join(__dirname, 'openapi.yaml')
+);
+const app = express();
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
